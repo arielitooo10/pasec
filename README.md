@@ -47,7 +47,7 @@ Es un proyecto real: lo diseñé y desarrollé como voluntario del **Albergue Sa
 Requisitos: Python 3.9 o superior.
 
 ```bash
-git clone https://github.com/arielitooo10/Pasec-.git pasec
+git clone https://github.com/arielitooo10/pasec.git
 cd pasec
 python3 -m venv venv
 source venv/bin/activate          # En Windows: venv\Scripts\activate
