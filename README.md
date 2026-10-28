@@ -2,7 +2,7 @@
 
 Aplicación web en **Python y Flask** que registra la entrada y salida de personas escaneando un código QR desde el celular de un guardia. Genera carnets de voluntariado con foto y QR, separa los permisos de administrador y de guardia, y está pensada para funcionar con datos móviles desde cualquier red.
 
-Es un proyecto real: lo diseñé y desarrollé para una organización de voluntariado en Quito, donde se usa para controlar el ingreso de su personal. Esta versión pública usa un nombre y un logo genéricos y datos de prueba.
+Es un proyecto real: lo diseñé y desarrollé como voluntario del **Albergue San Juan de Dios** (Quito), donde se usa para registrar la entrada y salida de su voluntariado. Esta versión pública usa un nombre y un logo genéricos y datos de prueba.
 
 ![Panel del administrador](docs/capturas/02-panel-admin.png)
 
