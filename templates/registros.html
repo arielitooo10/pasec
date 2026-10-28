@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Registros · {{ NOMBRE_ENTIDAD }}{% endblock %}
+{% block main_class %}container-ancho{% endblock %}
+{% block content %}
+<div class="cabecera-pagina">
+    <div>
+        <h1>Registros de entrada y salida</h1>
+        <p class="subtitle">Historial completo; filtra por persona o por fechas y expórtalo a CSV.</p>
+    </div>
+</div>
+
+<form method="get" class="filtros tarjeta">
+    <div>
+        <label for="persona_id">Persona</label>
+        <select name="persona_id" id="persona_id">
+            <option value="">Todas</option>
+            {% for p in personas %}
+            <option value="{{ p.id }}" {% if filtro_persona_id == p.id %}selected{% endif %}>{{ p.nombre }} ({{ p.cedula }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="desde">Desde</label>
+        <input type="date" name="desde" id="desde" value="{{ filtro_desde }}">
+    </div>
+    <div>
+        <label for="hasta">Hasta</label>
+        <input type="date" name="hasta" id="hasta" value="{{ filtro_hasta }}">
+    </div>
+    <div class="filtros-btns">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{{ url_for('exportar_registros_csv', persona_id=filtro_persona_id, desde=filtro_desde, hasta=filtro_hasta) }}" class="btn btn-secondary">Exportar CSV</a>
+    </div>
+</form>
+
+{% if registros|length == 0 %}
+    <div class="vacio"><p>No hay registros para los filtros seleccionados.</p></div>
+{% else %}
+<div class="tabla-contenedor">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Cédula</th>
+            <th>Tipo</th>
+            <th>Fecha y hora</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in registros %}
+        <tr>
+            <td data-label="Nombre">{{ r.nombre }}</td>
+            <td data-label="Cédula">{{ r.cedula }}</td>
+            <td data-label="Tipo">
+                {% if r.tipo == 'entrada' %}
+                    <span class="badge badge-dentro">Entrada</span>
+                {% else %}
+                    <span class="badge badge-fuera">Salida</span>
+                {% endif %}
+            </td>
+            <td data-label="Fecha y hora">{{ r.timestamp|fecha_hora_es }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endif %}
+{% endblock %}

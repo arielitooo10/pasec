@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Escanear QR · {{ NOMBRE_ENTIDAD }}{% endblock %}
+{% block content %}
+<div class="escaneo">
+    <h1>Escanear código QR</h1>
+    <p class="subtitle">Apunta la cámara al código QR del carnet de la persona.</p>
+
+    <div class="escaneo-tarjeta">
+        <div id="reader" class="reader"></div>
+    </div>
+
+    <div id="resultado" class="resultado resultado-oculto" role="status" aria-live="polite"></div>
+
+    <ol class="escaneo-pasos">
+        <li>Pide el carnet y centra su código QR en el recuadro.</li>
+        <li>Espera el aviso verde (entrada) o rojo (salida).</li>
+        <li>Compara la foto en pantalla con la persona que tienes enfrente.</li>
+    </ol>
+</div>
+
+<script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+{% endblock %}

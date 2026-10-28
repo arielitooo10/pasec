@@ -1,0 +1,9 @@
+{# Logo de la organización armado con HTML: sello turquesa con el emblema + nombre.
+   Es texto real (no una imagen), así que se ve nítido en cualquier pantalla. #}
+{% macro marca(entidad, variante='') -%}
+{% set partes = entidad.split(' ', 1) %}
+<span class="marca {{ variante }}">
+    <span class="marca-sello"><img src="{{ url_for('static', filename='img/emblema_blanco.png') }}" alt="" width="579" height="419"></span>
+    <span class="marca-texto"><span class="marca-1">{{ partes[0] }}</span>{% if partes|length > 1 %} <span class="marca-2">{{ partes[1] }}</span>{% endif %}</span>
+</span>
+{%- endmacro %}

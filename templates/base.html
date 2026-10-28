@@ -1,0 +1,65 @@
+{% from "_marca.html" import marca %}
+{% set ep = request.endpoint %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0288aa">
+    <title>{% block title %}{{ NOMBRE_ENTIDAD }} · PASEC{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/icono-180.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% if session.get('user_id') %}
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="topbar-marca" href="{{ url_for('index') }}" aria-label="Inicio">{{ marca(NOMBRE_ENTIDAD) }}</a>
+
+            <nav class="topbar-nav" aria-label="Navegación principal">
+                {% if session.get('rol') == 'admin' %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="{{ 'activo' if ep in ('admin_dashboard', 'ver_carnet', 'editar_persona') }}">Panel</a>
+                    <a href="{{ url_for('registrar_persona') }}" class="{{ 'activo' if ep == 'registrar_persona' }}">Registrar persona</a>
+                    <a href="{{ url_for('ver_registros') }}" class="{{ 'activo' if ep == 'ver_registros' }}">Registros</a>
+                    <a href="{{ url_for('scan_page') }}" class="{{ 'activo' if ep == 'scan_page' }}">Escanear</a>
+                {% else %}
+                    <a href="{{ url_for('scan_page') }}" class="activo">Escanear QR</a>
+                {% endif %}
+            </nav>
+
+            <div class="topbar-user">
+                <span class="avatar" aria-hidden="true">{{ (session.get('nombre_completo') or '?')[:1]|upper }}</span>
+                <span class="topbar-user-datos">
+                    <span class="topbar-user-nombre">{{ session.get('nombre_completo') }}</span>
+                    <span class="topbar-user-rol">{{ 'Administrador' if session.get('rol') == 'admin' else 'Guardia' }}</span>
+                </span>
+                <a href="{{ url_for('logout') }}" class="logout-link">Salir</a>
+            </div>
+        </div>
+    </header>
+    {% endif %}
+
+    <main class="container {% block main_class %}{% endblock %}">
+        {% block flashes %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% endblock %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block pie %}
+    {% if session.get('user_id') %}
+    <footer class="pie no-imprimir">
+        {{ NOMBRE_ENTIDAD }} · Sistema PASEC de control de acceso
+    </footer>
+    {% endif %}
+    {% endblock %}
+</body>
+</html>

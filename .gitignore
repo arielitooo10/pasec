@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+pasec.db
+qrcodes/*.png
+server.log
+cookies.txt
+
+fotos/*
+!fotos/.gitkeep
+clave_secreta.txt
+respaldos/
+venv/

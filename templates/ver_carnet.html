@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Carnet de {{ persona.nombre }} - PASEC{% endblock %}
+{% block main_class %}container-ancho{% endblock %}
+{% block content %}
+<h1 class="no-imprimir">Carnet de voluntariado</h1>
+<p class="subtitle no-imprimir">{{ persona.nombre }} · Cédula {{ persona.cedula }}</p>
+
+{% if not carnet.tipo or not carnet.desde or not carnet.contactoNombre or not carnet.fotoUrl %}
+<div class="flash flash-warning no-imprimir">
+    A este registro le faltan datos del carnet (tipo de voluntariado, vigencia, contacto o foto).
+    <a href="{{ url_for('editar_persona', persona_id=persona.id) }}">Complétalos aquí</a>.
+</div>
+{% endif %}
+
+<div class="carnet-vista no-imprimir">
+    <div class="carnet-lienzo">
+        <canvas id="carnet" class="carnet-canvas" aria-label="Carnet de {{ persona.nombre }}"></canvas>
+    </div>
+
+    <div class="carnet-acciones">
+        <h2>Entregar el carnet</h2>
+        <p class="field-hint">Descárgalo como imagen para enviarlo por WhatsApp, o imprímelo para entregarlo en físico.</p>
+        <div class="botones-carnet">
+            <button type="button" class="btn btn-primary" id="btn-png">Descargar PNG</button>
+            <button type="button" class="btn btn-primary" id="btn-jpg">Descargar JPG</button>
+            <button type="button" class="btn btn-secondary" id="btn-imprimir">Imprimir</button>
+            <button type="button" class="btn btn-secondary" id="btn-compartir" hidden>Compartir (WhatsApp…)</button>
+        </div>
+        <p class="field-hint" id="carnet-aviso" role="status"></p>
+
+        <h2>Otras opciones</h2>
+        <div class="botones-carnet">
+            <a class="btn btn-secondary" href="{{ url_for('editar_persona', persona_id=persona.id) }}">Editar datos</a>
+            <a class="btn btn-secondary" href="{{ url_for('descargar_qr', persona_id=persona.id) }}" download>Descargar solo el QR</a>
+            <a class="btn btn-secondary" href="{{ url_for('admin_dashboard') }}">Volver al panel</a>
+        </div>
+        <p class="field-hint">El tamaño del carnet es el de una tarjeta de identificación (54 × 85,6&nbsp;mm).</p>
+    </div>
+</div>
+
+<div id="area-impresion" aria-hidden="true"><img id="img-impresion" alt="Carnet de {{ persona.nombre }}"></div>
+
+<script type="application/json" id="carnet-datos">{{ {
+    'config': CARNET_CONFIG,
+    'logo': url_for('static', filename='img/emblema_blanco.png'),
+    'carnet': carnet,
+} | tojson }}</script>
+<script src="{{ url_for('static', filename='js/carnet.js') }}"></script>
+<script src="{{ url_for('static', filename='js/carnet_ver.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "_marca.html" import marca %}
+{% block title %}Ingresar · {{ NOMBRE_ENTIDAD }}{% endblock %}
+{% block body_class %}pagina-login{% endblock %}
+{% block flashes %}{% endblock %}
+{% block pie %}{% endblock %}
+{% block content %}
+{% set partes = NOMBRE_ENTIDAD.split(' ', 1) %}
+<div class="login-pagina">
+
+    <section class="login-hero">
+        <div class="login-hero-contenido">
+            <img class="login-emblema" src="{{ url_for('static', filename='img/emblema_blanco.png') }}" alt="" width="579" height="419">
+            <h1>
+                <span class="hero-1">{{ partes[0] }}</span>
+                {% if partes|length > 1 %}<span class="hero-2">{{ partes[1] }}</span>{% endif %}
+            </h1>
+            <p class="hero-sub">{{ SUBTITULO }}</p>
+            <ul class="hero-lista">
+                <li>Registro de entradas y salidas en segundos</li>
+                <li>Carnets de voluntariado con foto y código QR</li>
+                <li>Acceso seguro según el rol de cada usuario</li>
+            </ul>
+        </div>
+        <svg class="login-olas" viewBox="0 0 800 220" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 150 C160 90 300 200 470 150 S720 60 800 100 L800 220 L0 220 Z" fill="rgba(255,255,255,0.07)"/>
+            <path d="M0 180 C180 130 320 220 500 175 S730 110 800 140 L800 220 L0 220 Z" fill="rgba(2,136,170,0.45)"/>
+        </svg>
+    </section>
+
+    <section class="login-panel">
+        <div class="login-card">
+            <div class="login-marca-movil">{{ marca(NOMBRE_ENTIDAD) }}</div>
+            <h2>Bienvenido/a</h2>
+            <p class="subtitle">Ingresa con tu usuario para continuar.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="post" class="form">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" name="username" autocomplete="username" required autofocus>
+
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
+
+                <button type="submit" class="btn btn-primary btn-bloque">Ingresar</button>
+            </form>
+
+            <p class="login-pie">{{ NOMBRE_ENTIDAD }} · PASEC</p>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

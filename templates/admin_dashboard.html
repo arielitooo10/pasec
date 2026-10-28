@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Panel · {{ NOMBRE_ENTIDAD }}{% endblock %}
+{% block main_class %}container-ancho{% endblock %}
+{% block content %}
+{% set total = estado|length %}
+{% set dentro = estado|selectattr('ultimo_tipo', 'equalto', 'entrada')|list|length %}
+{% set vencidos = estado|selectattr('estado_carnet', 'equalto', 'Vencido')|list|length %}
+
+<div class="cabecera-pagina">
+    <div>
+        <h1>Panel de administrador</h1>
+        <p class="subtitle">Quién está dentro del lugar y el estado de cada carnet.</p>
+    </div>
+    <div class="cabecera-acciones">
+        <a href="{{ url_for('registrar_persona') }}" class="btn btn-primary">+ Registrar persona</a>
+        <a href="{{ url_for('ver_registros') }}" class="btn btn-secondary">Ver registros</a>
+    </div>
+</div>
+
+<div class="resumen">
+    <div class="dato dato-azul">
+        <span class="dato-numero">{{ total }}</span>
+        <span class="dato-etiqueta">Personas registradas</span>
+    </div>
+    <div class="dato dato-verde">
+        <span class="dato-numero">{{ dentro }}</span>
+        <span class="dato-etiqueta">Dentro ahora</span>
+    </div>
+    <div class="dato {{ 'dato-rojo' if vencidos else 'dato-gris' }}">
+        <span class="dato-numero">{{ vencidos }}</span>
+        <span class="dato-etiqueta">Carnets vencidos</span>
+    </div>
+</div>
+
+<h2>Estado actual</h2>
+{% if total == 0 %}
+    <div class="vacio">
+        <p>Todavía no hay personas registradas.</p>
+        <a href="{{ url_for('registrar_persona') }}" class="btn btn-primary">Registrar la primera persona</a>
+    </div>
+{% else %}
+<div class="tabla-contenedor">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Foto</th>
+            <th>Nombre</th>
+            <th>Cédula</th>
+            <th>Tipo</th>
+            <th>Vigencia</th>
+            <th>Estado</th>
+            <th>Último movimiento</th>
+            <th>Carnet</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in estado %}
+        <tr>
+            <td data-label="">
+                {% if p.foto_filename %}
+                    <img class="foto-miniatura" src="{{ url_for('foto_persona', persona_id=p.id) }}" alt="Foto de {{ p.nombre }}">
+                {% else %}
+                    <span class="foto-miniatura foto-miniatura-vacia">Sin foto</span>
+                {% endif %}
+            </td>
+            <td class="celda-nombre" data-label="Nombre">{{ p.nombre }}</td>
+            <td data-label="Cédula">{{ p.cedula }}</td>
+            <td data-label="Tipo">{{ p.tipo_voluntariado or "—" }}</td>
+            <td data-label="Vigencia">
+                {% if p.vigencia_hasta %}
+                    hasta {{ p.vigencia_hasta|fecha_es }}
+                    {% if p.estado_carnet != 'Activo' %}
+                        <span class="badge badge-fuera">{{ p.estado_carnet }}</span>
+                    {% endif %}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td data-label="Estado">
+                {% if p.ultimo_tipo == 'entrada' %}
+                    <span class="badge badge-dentro">Dentro</span>
+                {% elif p.ultimo_tipo == 'salida' %}
+                    <span class="badge badge-fuera">Fuera</span>
+                {% else %}
+                    <span class="badge badge-sin-registro">Sin registros</span>
+                {% endif %}
+            </td>
+            <td data-label="Último movimiento">{{ p.ultimo_ts|fecha_hora_es or "—" }}</td>
+            <td class="acciones-tabla" data-label="Carnet">
+                <a href="{{ url_for('ver_carnet', persona_id=p.id) }}">Ver carnet</a>
+                <span class="separador">·</span>
+                <a href="{{ url_for('editar_persona', persona_id=p.id) }}">Editar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endif %}
+{% endblock %}

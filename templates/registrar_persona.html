@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar persona' if editando else 'Registrar persona' }} - PASEC{% endblock %}
+{% block main_class %}container-ancho{% endblock %}
+{% block content %}
+<h1>{{ 'Editar persona' if editando else 'Registrar nueva persona' }}</h1>
+<p class="subtitle">Llena los datos y mira a la derecha cómo quedará el carnet.</p>
+
+<div class="editor">
+    <form method="post" class="form editor-form" id="form-carnet" enctype="multipart/form-data" autocomplete="off">
+
+        <fieldset class="grupo">
+            <legend>Datos de la persona</legend>
+
+            <label for="nombre">Nombres y apellidos</label>
+            <input type="text" id="nombre" name="nombre" value="{{ form.nombre }}" maxlength="80" required {{ '' if editando else 'autofocus' }}>
+
+            <label for="cedula">Cédula</label>
+            <input type="text" id="cedula" name="cedula" value="{{ form.cedula }}" maxlength="20" required {{ 'readonly' if editando else '' }}>
+            <p class="field-hint">
+                {% if editando %}La cédula no se puede cambiar. Si está mal escrita, desactiva a la persona y regístrala de nuevo.
+                {% else %}No aparece en el carnet, pero sirve para identificar a la persona en los registros.{% endif %}
+            </p>
+        </fieldset>
+
+        <fieldset class="grupo">
+            <legend>Credencial</legend>
+
+            <label for="tipo_voluntariado">Tipo de voluntariado</label>
+            <input type="text" id="tipo_voluntariado" name="tipo_voluntariado" value="{{ form.tipo_voluntariado }}"
+                   maxlength="40" list="tipos-voluntariado" placeholder="Ej.: Prácticas pre-profesionales" required>
+            <datalist id="tipos-voluntariado">
+                {% for tipo in TIPOS_VOLUNTARIADO %}<option value="{{ tipo }}">{% endfor %}
+            </datalist>
+
+            <div class="fila-2">
+                <div>
+                    <label for="vigencia_desde">Vigencia: desde</label>
+                    <input type="date" id="vigencia_desde" name="vigencia_desde" value="{{ form.vigencia_desde }}" required>
+                </div>
+                <div>
+                    <label for="vigencia_hasta">Vigencia: hasta</label>
+                    <input type="date" id="vigencia_hasta" name="vigencia_hasta" value="{{ form.vigencia_hasta }}" required>
+                </div>
+            </div>
+
+            <p class="estado-info">
+                Estado en el carnet: <strong id="estado-calculado">Activo</strong>
+                <span class="field-hint">— se calcula solo según la vigencia.</span>
+            </p>
+
+            {% if editando %}
+            <label class="check">
+                <input type="checkbox" id="activo" name="activo" {{ 'checked' if form.activo else '' }}>
+                Persona activa (puede registrar entradas y salidas)
+            </label>
+            {% endif %}
+        </fieldset>
+
+        <fieldset class="grupo">
+            <legend>Contacto de emergencia</legend>
+
+            <div class="fila-2">
+                <div>
+                    <label for="contacto_nombre">Nombre</label>
+                    <input type="text" id="contacto_nombre" name="contacto_nombre" value="{{ form.contacto_nombre }}" maxlength="40" required>
+                </div>
+                <div>
+                    <label for="contacto_telefono">Teléfono</label>
+                    <input type="tel" id="contacto_telefono" name="contacto_telefono" value="{{ form.contacto_telefono }}" maxlength="20" required>
+                </div>
+            </div>
+            <p class="field-hint">Útil ante accidentes o emergencias.</p>
+
+            <label for="frase_extra">Frase o detalle propio (opcional)</label>
+            <input type="text" id="frase_extra" name="frase_extra" value="{{ form.frase_extra }}" maxlength="100"
+                   placeholder="Ej.: El tiempo que se disfruta es el verdadero tiempo vivido">
+        </fieldset>
+
+        <fieldset class="grupo">
+            <legend>Fotografía</legend>
+
+            <label for="foto">{{ 'Cambiar la foto (opcional)' if editando and persona.foto_filename else 'Foto de la persona' }}</label>
+            <input type="file" id="foto" name="foto" accept="image/png,image/jpeg">
+            <p class="field-hint">Identificación visual: el guardia la verá en pantalla grande al escanear el QR. PNG o JPG, máx. 8&nbsp;MB.</p>
+
+            <div class="ajuste-foto" id="ajuste-foto" hidden>
+                <p class="field-hint"><strong>Ajustar encuadre:</strong> arrastra la foto en la vista previa o usa los controles.</p>
+                <label for="foto_zoom">Acercar</label>
+                <input type="range" id="foto_zoom" name="foto_zoom" min="1" max="3" step="0.01" value="{{ form.foto_zoom }}">
+                <label for="foto_x">Mover a los lados</label>
+                <input type="range" id="foto_x" name="foto_x" min="0" max="1" step="0.01" value="{{ form.foto_x }}">
+                <label for="foto_y">Mover arriba / abajo</label>
+                <input type="range" id="foto_y" name="foto_y" min="0" max="1" step="0.01" value="{{ form.foto_y }}">
+                <button type="button" class="btn btn-secondary" id="foto-restablecer">Restablecer encuadre</button>
+            </div>
+        </fieldset>
+
+        <div class="acciones-form">
+            <button type="submit" class="btn btn-primary">{{ 'Guardar cambios' if editando else 'Registrar y generar carnet' }}</button>
+            <a class="btn btn-secondary" href="{{ url_for('ver_carnet', persona_id=persona.id) if editando else url_for('admin_dashboard') }}">Cancelar</a>
+        </div>
+    </form>
+
+    <aside class="editor-preview">
+        <h2>Vista previa del carnet</h2>
+        <canvas id="vista-previa" class="carnet-canvas" aria-label="Vista previa del carnet"></canvas>
+        {% if not editando %}
+        <p class="field-hint">El QR que se ve es de ejemplo; el verdadero se genera al registrar.</p>
+        {% endif %}
+    </aside>
+</div>
+
+<script type="application/json" id="carnet-datos">{{ {
+    'config': CARNET_CONFIG,
+    'logo': url_for('static', filename='img/emblema_blanco.png'),
+    'fotoUrl': url_for('foto_persona', persona_id=persona.id) if (editando and persona.foto_filename) else None,
+    'qrUrl': url_for('qr_carnet', persona_id=persona.id) if editando else url_for('qr_muestra'),
+    'editando': editando,
+} | tojson }}</script>
+<script src="{{ url_for('static', filename='js/carnet.js') }}"></script>
+<script src="{{ url_for('static', filename='js/carnet_editor.js') }}"></script>
+{% endblock %}
